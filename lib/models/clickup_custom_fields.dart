@@ -6,8 +6,9 @@ class ClickupCustomFields {
   final String name;
   final String type;
   final bool required;
+  final List<MapEntry<String, dynamic>>? options;
 
-  ClickupCustomFields({required this.id, required this.name, required this.type, required this.required});
+  ClickupCustomFields({required this.id, required this.name, required this.type, required this.required, this.options});
 
   ClickupCustomFields copyWith({String? id, String? name, String? type, bool? required}) {
     return ClickupCustomFields(
@@ -29,6 +30,10 @@ class ClickupCustomFields {
         name: map['name'] as String,
         type: map['type'] as String,
         required: map['required'] as bool,
+        options:
+            (map['type_config']['options'] as List<dynamic>?)
+                ?.map((e) => MapEntry<String, dynamic>(e['id'] as String, e['name'] as dynamic))
+                .toList(),
       );
     } catch (e) {
       print('Error in ClickupCustomFields.fromMap: $e');

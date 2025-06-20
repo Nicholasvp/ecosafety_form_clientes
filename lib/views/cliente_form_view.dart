@@ -1,4 +1,5 @@
 import 'package:ecosafety_form_clientes/controllers/cliente_controller.dart';
+import 'package:ecosafety_form_clientes/widgets/custom_field_widget.dart';
 import 'package:flutter/material.dart';
 
 class ClienteFormView extends StatefulWidget {
@@ -36,7 +37,6 @@ class _ClienteFormViewState extends State<ClienteFormView> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          /// Ordena os campos: obrigatórios primeiro
           final sortedFields = [...data]..sort((a, b) {
             if (a.required == b.required) return 0;
             return a.required ? -1 : 1;
@@ -55,22 +55,13 @@ class _ClienteFormViewState extends State<ClienteFormView> {
                     ),
                     const SizedBox(height: 16),
 
-                    /// Campos dinâmicos
-                    ...sortedFields.map(
-                      (field) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: TextFormField(
-                          controller: clienteController.customFieldControllers[field.id],
-                          decoration: InputDecoration(labelText: field.name, border: const OutlineInputBorder()),
-                          validator: (value) {
-                            if (field.required && (value == null || value.trim().isEmpty)) {
-                              return 'Campo obrigatório';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
+                    ...sortedFields.map((field) {
+                      return CustomFieldWidget(
+                        clienteController:
+                            clienteController.customFieldControllers[field.id] ?? TextEditingController(),
+                        customField: field,
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -79,7 +70,6 @@ class _ClienteFormViewState extends State<ClienteFormView> {
         },
       ),
 
-      /// BottomNavigator fixo com botão
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SafeArea(
@@ -97,7 +87,7 @@ class _ClienteFormViewState extends State<ClienteFormView> {
                           : () async {
                             if (_formKey.currentState?.validate() ?? false) {
                               await clienteController.createClientTask();
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(
                                   context,
                                 ).showSnackBar(const SnackBar(content: Text('Task criada com sucesso!')));

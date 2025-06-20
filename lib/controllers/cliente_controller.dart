@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:ecosafety_form_clientes/controllers/clickup_controller.dart';
 import 'package:ecosafety_form_clientes/models/clickup_custom_fields.dart';
 import 'package:flutter/material.dart';
@@ -5,15 +7,10 @@ import 'package:flutter/material.dart';
 class ClienteController {
   final ClickupController clickupController = ClickupController();
 
-  /// Lista dos custom fields
   ValueNotifier<List<ClickupCustomFields>> customFields = ValueNotifier<List<ClickupCustomFields>>([]);
 
-  /// Controllers dos campos
   final Map<String, TextEditingController> customFieldControllers = {};
 
-  /// ===============================
-  /// Buscar os custom fields
-  /// ===============================
   Future<void> getCustomFields() async {
     try {
       final response = await clickupController.getCustomFields();
@@ -25,7 +22,6 @@ class ClienteController {
 
         customFields.value = fields;
 
-        /// Criar um controller para cada campo
         for (var field in fields) {
           customFieldControllers[field.id] = TextEditingController();
         }
@@ -37,12 +33,8 @@ class ClienteController {
     }
   }
 
-  /// ===============================
-  /// Criar task no ClickUp
-  /// ===============================
   Future<void> createClientTask() async {
     try {
-      /// Monta o Map dos custom fields
       final customFieldsData = <String, dynamic>{};
 
       for (var field in customFields.value) {
@@ -52,11 +44,9 @@ class ClienteController {
         }
       }
 
-      /// Define o nome como primeiro campo obrigatório preenchido, ou um padrão
       final name = customFields.value.firstWhere((field) => field.required, orElse: () => customFields.value.first);
       final nameValue = customFieldControllers[name.id]?.text.trim() ?? 'Novo Cliente';
 
-      /// Envia para a API
       final response = await clickupController.createTask(
         name: nameValue.isNotEmpty ? nameValue : 'Novo Cliente',
         customFields: customFieldsData,
@@ -68,9 +58,6 @@ class ClienteController {
     }
   }
 
-  /// ===============================
-  /// Dispose dos controllers
-  /// ===============================
   void disposeControllers() {
     for (var controller in customFieldControllers.values) {
       controller.dispose();

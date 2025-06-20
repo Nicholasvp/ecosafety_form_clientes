@@ -14,10 +14,7 @@ void main() {
   });
 
   test('should create a new task', () async {
-    final result = await clickupController.createTask(
-      name: 'Test Task',
-      description: 'This is a test task for ClickUp integration',
-    );
+    final result = await clickupController.createTask(name: 'Test Task');
     expect(result, isNotNull);
     expect(result.data['name'], equals('Test Task'));
   });

@@ -15,15 +15,23 @@ class ClickupController {
   final _urlClientes = 'https://api.clickup.com/api/v2/list/901303114710/task';
   final _urlCustomFields = 'https://api.clickup.com/api/v2/list/901303114710/field';
 
-  /// Cria uma task no ClickUp com custom fields
   Future<Response> createTask({required String name, Map<String, dynamic>? customFields}) async {
-    final data = {
-      'name': name,
-      if (customFields != null) 'custom_fields': customFields, // Envia os custom fields no formato correto
-    };
+    final data = {'name': name};
 
     try {
       final response = await _dio.post(_urlClientes, data: data);
+
+      final taskId = response.data['id'];
+
+      if (customFields != null) {
+        for (final entry in customFields.entries) {
+          final fieldId = entry.key;
+          final value = entry.value;
+
+          await _dio.post('https://api.clickup.com/api/v2/task/$taskId/field/$fieldId', data: {'value': value});
+        }
+      }
+
       return response;
     } catch (e) {
       print('Error creating task: $e');
@@ -31,7 +39,6 @@ class ClickupController {
     }
   }
 
-  /// Retorna a lista de tasks
   Future<Response> getTasks({int limit = 20}) async {
     try {
       final response = await _dio.get(_urlClientes, queryParameters: {'limit': limit});
